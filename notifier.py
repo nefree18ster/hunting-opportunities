@@ -1,7 +1,12 @@
+import os
+from dotenv import load_dotenv
 import requests
 
-BOT_TOKEN = '7726784700:AAFjmjVc9NUGYlq0Cmtmh0rEfbf-Di2D4B8'  # Paste from BotFather
-CHAT_ID = 'YO502825466'      # From @userinfobot
+# Load from neh.env instead of default .env
+load_dotenv("neh.env")
+
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 def send_telegram_alert(message):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
@@ -15,5 +20,7 @@ def send_telegram_alert(message):
         response = requests.post(url, data=payload)
         if response.status_code != 200:
             print("Failed to send alert:", response.text)
+        else:
+            print("Alert sent successfully")
     except Exception as e:
         print("Error sending Telegram alert:", e)
