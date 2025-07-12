@@ -8,12 +8,12 @@ def run_ema_check():
     for symbol in stock_list:
         result = ema_crossover(symbol)
 
-        print(result)  # Print in terminal
-        log_result(result, "logs/ema_crossover.log")  # Save in log file
-
-        # 🔔 Send alert if crossover found
-        if "BUY SIGNAL" in result:
+        # Filter for only buy or sell signals
+        if "BUY SIGNAL" in result or "SELL SIGNAL" in result:
+            print(result)
+            log_result(result, "logs/ema_crossover.log")
             send_telegram_alert(result)
 
 if __name__ == "__main__":
     run_ema_check()
+
