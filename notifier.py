@@ -1,7 +1,11 @@
+import os
+from dotenv import load_dotenv
 import requests
 
-BOT_TOKEN = '7726784700:AAFjmjVc9NUGYlq0Cmtmh0rEfbf-Di2D4B8'  # Paste from BotFather
-CHAT_ID = 'YO502825466'      # From @userinfobot
+load_dotenv()  # Load .env file
+
+BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 def send_telegram_alert(message):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"

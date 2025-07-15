@@ -1,31 +1,46 @@
+# checks/ema_crossover.py
+
 import pandas as pd
 import yfinance as yf
+from datetime import datetime, timedelta
 
 def ema_crossover(symbol):
     try:
-        # Download 1-hour interval data for the last 3 months
-        data = yf.download(symbol, period='3mo', interval='1h')
+        # Download hourly data for last 5 days
+        data = yf.download(symbol, period='5d', interval='1h', progress=False)
         if data.empty:
             return f"{symbol}: ❌ No data available"
 
-        # Calculate EMA 5 and EMA 50
+        # Compute EMAs
         data['EMA5'] = data['Close'].ewm(span=5, adjust=False).mean()
         data['EMA50'] = data['Close'].ewm(span=50, adjust=False).mean()
 
-        # Ensure we have enough data to compare
-        if len(data) < 2:
-            return f"{symbol}: ⚠️ Not enough data"
+        # Normalize date
+        data['Date'] = data.index.tz_localize(None).date
 
-        # Check for crossover and crossunder
-        prev_cross = data['EMA5'].iloc[-2] - data['EMA50'].iloc[-2]
-        curr_cross = data['EMA5'].iloc[-1] - data['EMA50'].iloc[-1]
+        # Identify yesterday
+        today = datetime.utcnow().date()
+        yesterday = today - timedelta(days=1)
 
-        if prev_cross <= 0 and curr_cross > 0:
-            return f"{symbol}: ✅ BUY SIGNAL - 5 EMA crossed above 50 EMA"
-        elif prev_cross >= 0 and curr_cross < 0:
-            return f"{symbol}: 🔻 SELL SIGNAL - 5 EMA crossed below 50 EMA"
-        else:
-            return f"{symbol}: ❌ No crossover"
+        # Filter for only yesterday’s candles
+        yesterday_data = data[data['Date'] == yesterday]
+        if yesterday_data.empty:
+            return f"{symbol}: ⚠️ No data for yesterday ({yesterday})"
+
+        # Check for crossover / crossunder in yesterday
+        for i in range(1, len(yesterday_data)):
+            prev = yesterday_data.iloc[i - 1]
+            curr = yesterday_data.iloc[i]
+
+            prev_diff = prev['EMA5'] - prev['EMA50']
+            curr_diff = curr['EMA5'] - curr['EMA50']
+
+            if prev_diff <= 0 and curr_diff > 0:
+                return f"{symbol}: ✅ BUY SIGNAL - 5 EMA crossed above 50 EMA"
+            elif prev_diff >= 0 and curr_diff < 0:
+                return f"{symbol}: 🔻 SELL SIGNAL - 5 EMA crossed below 50 EMA"
+
+        return f"{symbol}: ❌ No crossover or crossunder yesterday"
 
     except Exception as e:
         return f"{symbol}: 🔴 Error - {str(e)}"

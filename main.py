@@ -3,7 +3,7 @@ from utils import read_stock_list, log_result
 from notifier import send_telegram_alert  # 🚨 Telegram notifier
 
 def run_ema_check():
-    stock_list = read_stock_list("data/stocks.txt")
+    stock_list = read_stock_list("stocks.txt")
 
     for symbol in stock_list:
         result = ema_crossover(symbol)
