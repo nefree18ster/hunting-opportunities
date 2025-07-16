@@ -2,11 +2,10 @@ import os
 from dotenv import load_dotenv
 import requests
 
-# Load from neh.env instead of default .env
-load_dotenv("neh.env")
+load_dotenv()  # Load .env file
 
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 def send_telegram_alert(message):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
